@@ -1,0 +1,3 @@
+[submodule "contracts-foundry"]
+	path = contracts-foundry
+	url = https://github.com/jozer-rami/prepago-contracts
