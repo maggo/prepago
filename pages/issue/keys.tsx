@@ -33,8 +33,6 @@ export default function KeysPage() {
 
   const [hasDownloadedKey, setHasDownloadedKey] = useState(false)
 
-  console.log(getPrivateKey())
-
   if (!router.isReady) return null
 
   if (!tokenAmount || !tokenAddress || !tokenName) {
@@ -90,6 +88,7 @@ export default function KeysPage() {
             privateKey={getPrivateKey()}
             amount={tokenAmount}
             currency={tokenName}
+            tokenAddress={tokenAddress}
           />
         )}
       </div>
