@@ -55,6 +55,24 @@ export default function CardPage() {
     { enabled: !!signer?.address }
   )
 
+  const { data: userIsOwner } = useQuery(
+    ["isOwner", userAddress],
+    async () => {
+      if (!signer || !safeAddress) throw new Error()
+
+      const safe = await Safe.create({
+        ethAdapter: new EthersAdapter({
+          ethers,
+          signerOrProvider: signer,
+        }),
+        safeAddress,
+      })
+
+      return safe.isOwner(userAddress!)
+    },
+    { enabled: !!userAddress }
+  )
+
   const { data: balances } = useQuery(
     ["balances", safeAddress],
     async () => {
@@ -160,6 +178,19 @@ export default function CardPage() {
 
   console.log(taskStatus)
 
+  if (userIsOwner) {
+    return (
+      <>
+        <div className="centered-container">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+            Your connected wallet is already the owner of this card!
+          </h1>
+        </div>
+        <Footer />
+      </>
+    )
+  }
+
   if (!safeAddress) {
     return (
       <div className="centered-container">
@@ -231,9 +262,15 @@ export default function CardPage() {
               </button>
             </p>
             {taskStatus ? (
-              <p className="text-green-500">
-                Task Status: {taskStatus.taskState}
-              </p>
+              taskStatus.taskState === "ExecSuccess" ? (
+                <p className="text-green-500">
+                  Card has been claimed successfully!
+                </p>
+              ) : (
+                <p className="text-green-500">
+                  Task Status: {taskStatus.taskState}
+                </p>
+              )
             ) : (
               <Button disabled={isLoading} onClick={() => claim()}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
