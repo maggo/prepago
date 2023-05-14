@@ -32,7 +32,7 @@ export default function Web3AuthConnectorInstance(chains: Chain[]) {
   // Add openlogin adapter for customisations
   const openloginAdapterInstance = new OpenloginAdapter({
     adapterSettings: {
-      network: "cyan",
+      network: "testnet",
       uxMode: "popup",
       whiteLabel: {
         name,
@@ -46,7 +46,7 @@ export default function Web3AuthConnectorInstance(chains: Chain[]) {
   web3AuthInstance.configureAdapter(openloginAdapterInstance)
 
   return new Web3AuthConnector({
-    chains: chains as any,
+    chains,
     options: {
       web3AuthInstance,
     },
