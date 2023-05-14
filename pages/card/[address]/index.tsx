@@ -7,7 +7,7 @@ import { Alchemy, Network } from "alchemy-sdk"
 import { BigNumber, ethers } from "ethers"
 import { formatEther, getAddress, isAddress } from "ethers/lib/utils.js"
 import { Loader2 } from "lucide-react"
-import { useAccount, useChainId, useSigner } from "wagmi"
+import { useAccount, useBalance, useChainId, useSigner } from "wagmi"
 
 import { shortenAddress } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,10 @@ export default function CardPage() {
 
   const { address: userAddress } = useAccount()
   const { data: signer } = useSigner()
+
+  const { data: balance } = useBalance({
+    address: safeAddress,
+  })
 
   const { data: balances } = useQuery(
     ["balances", safeAddress],
@@ -162,6 +166,9 @@ export default function CardPage() {
         </h1>
         <p>This card holds</p>
         <div>
+          {!!balance && (
+            <div className="text-4xl font-bold">{balance.formatted} $ETH</div>
+          )}
           {balances?.map(({ tokenBalance, contractAddress }) =>
             BigNumber.from(tokenBalance).gt(0) ? (
               <div key={contractAddress} className="text-4xl font-bold">

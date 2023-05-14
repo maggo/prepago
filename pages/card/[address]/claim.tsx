@@ -9,6 +9,7 @@ import { formatEther, getAddress, isAddress } from "ethers/lib/utils.js"
 import { Loader2 } from "lucide-react"
 import {
   useAccount,
+  useBalance,
   useChainId,
   useDisconnect,
   useMutation,
@@ -74,6 +75,10 @@ export default function CardPage() {
     },
     { enabled: !!userAddress }
   )
+
+  const { data: balance } = useBalance({
+    address: safeAddress,
+  })
 
   const { data: balances } = useQuery(
     ["balances", safeAddress],
@@ -235,6 +240,9 @@ export default function CardPage() {
           Card #{shortenAddress(safeAddress)}
         </h1>
         <div>
+          {!!balance && (
+            <div className="text-4xl font-bold">{balance.formatted} $ETH</div>
+          )}
           {balances?.map(({ tokenBalance, contractAddress }) =>
             BigNumber.from(tokenBalance).gt(0) ? (
               <div key={contractAddress} className="text-4xl font-bold">

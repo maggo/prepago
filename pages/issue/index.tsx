@@ -17,10 +17,10 @@ import {
 export const supportedTokens = [
   {
     address: constants.AddressZero,
-    name: "ETH",
+    name: "ETH", // TODO: Make chain aware (Gnosis chain = XDAI etc)
   },
   {
-    address: "0x123",
+    address: "0x4d224452801ACEd8B2F0aebE155379bb5D594381",
     name: "APE",
   },
   {
@@ -30,6 +30,10 @@ export const supportedTokens = [
   {
     address: "0xcbE9771eD31e761b744D3cB9eF78A1f32DD99211",
     name: "GHO",
+  },
+  {
+    address: "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
+    name: "XDAI",
   },
 ]
 
