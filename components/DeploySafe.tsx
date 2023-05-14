@@ -67,8 +67,6 @@ export function DeploySafe({
     isLoading: txLoading,
   } = useWaitForTransaction({ hash: tx?.hash })
 
-  console.log(data?.logs)
-
   const safeAddress = data?.logs.find(
     (log) =>
       log.topics[0] ===

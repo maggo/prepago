@@ -178,8 +178,6 @@ export default function CardPage() {
     }
   )
 
-  console.log(taskStatus)
-
   if (userIsOwner) {
     return (
       <>
