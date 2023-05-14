@@ -3,6 +3,7 @@ import AccountAbstraction from "@safe-global/account-abstraction-kit-poc"
 import Safe, { EthersAdapter, getSafeContract } from "@safe-global/protocol-kit"
 import { GelatoRelayPack } from "@safe-global/relay-kit"
 import { useMutation, useQuery } from "@tanstack/react-query"
+import { Alchemy, Network } from "alchemy-sdk"
 import { BigNumber, ethers } from "ethers"
 import { formatEther, getAddress, isAddress } from "ethers/lib/utils.js"
 import { Loader2 } from "lucide-react"
@@ -10,6 +11,7 @@ import { useAccount, useChainId, useSigner } from "wagmi"
 
 import { shortenAddress } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { supportedTokens } from "@/pages/issue"
 
 import { Footer } from "./claim"
 
@@ -29,17 +31,12 @@ export default function CardPage() {
   const { data: balances } = useQuery(
     ["balances", safeAddress],
     async () => {
-      const res =
-        await fetch(`https://safe-transaction-goerli.safe.global/api/v1/safes/${safeAddress}/balances/?trusted=false&exclude_spam=true
-    `)
-
-      const data = await res.json()
-
-      return data as {
-        tokenAddress: string | null
-        token: string | null
-        balance: string
-      }[]
+      const settings = {
+        apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID!,
+        network: Network.ETH_GOERLI,
+      }
+      const alchemy = new Alchemy(settings)
+      return (await alchemy.core.getTokenBalances(safeAddress!)).tokenBalances
     },
     { enabled: !!safeAddress }
   )
@@ -165,11 +162,17 @@ export default function CardPage() {
         </h1>
         <p>This card holds</p>
         <div>
-          {balances?.map(({ token, tokenAddress, balance }) => (
-            <div key={tokenAddress} className="text-4xl font-bold">
-              {formatEther(BigNumber.from(balance))} ${token ?? "ETH"}
-            </div>
-          ))}
+          {balances?.map(({ tokenBalance, contractAddress }) =>
+            BigNumber.from(tokenBalance).gt(0) ? (
+              <div key={contractAddress} className="text-4xl font-bold">
+                {formatEther(BigNumber.from(tokenBalance))} $
+                {supportedTokens.find(
+                  ({ address }) =>
+                    address.toLowerCase() === contractAddress.toLowerCase()
+                )?.name ?? "ETH"}
+              </div>
+            ) : null
+          )}
         </div>
         {isOwner && (
           <>

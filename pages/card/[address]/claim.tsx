@@ -3,6 +3,7 @@ import AccountAbstraction from "@safe-global/account-abstraction-kit-poc"
 import Safe, { EthersAdapter, getSafeContract } from "@safe-global/protocol-kit"
 import { GelatoRelayPack } from "@safe-global/relay-kit"
 import { useQuery } from "@tanstack/react-query"
+import { Alchemy, Network } from "alchemy-sdk"
 import { BigNumber, Wallet, ethers } from "ethers"
 import { formatEther, getAddress, isAddress } from "ethers/lib/utils.js"
 import { Loader2 } from "lucide-react"
@@ -17,6 +18,7 @@ import {
 import { shortenAddress } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { LoginButton } from "@/components/LoginButton"
+import { supportedTokens } from "@/pages/issue"
 
 const relayPack = new GelatoRelayPack(
   "sB0a0DD_KOgg70SS57eHEItQnn45VcIysXZMLk4hw34_"
@@ -76,17 +78,12 @@ export default function CardPage() {
   const { data: balances } = useQuery(
     ["balances", safeAddress],
     async () => {
-      const res =
-        await fetch(`https://safe-transaction-goerli.safe.global/api/v1/safes/${safeAddress}/balances/?trusted=false&exclude_spam=true
-    `)
-
-      const data = await res.json()
-
-      return data as {
-        tokenAddress: string | null
-        token: string | null
-        balance: string
-      }[]
+      const settings = {
+        apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID!,
+        network: Network.ETH_GOERLI,
+      }
+      const alchemy = new Alchemy(settings)
+      return (await alchemy.core.getTokenBalances(safeAddress!)).tokenBalances
     },
     { enabled: !!safeAddress }
   )
@@ -238,10 +235,13 @@ export default function CardPage() {
           Card #{shortenAddress(safeAddress)}
         </h1>
         <div>
-          {balances?.map(({ token, tokenAddress, balance }) =>
-            BigNumber.from(balance).gt(0) ? (
-              <div key={tokenAddress} className="text-4xl font-bold">
-                {formatEther(BigNumber.from(balance))} ${token ?? "ETH"}
+          {balances?.map(({ tokenBalance, contractAddress }) =>
+            BigNumber.from(tokenBalance).gt(0) ? (
+              <div key={contractAddress} className="text-4xl font-bold">
+                {formatEther(BigNumber.from(tokenBalance))} $
+                {supportedTokens.find(
+                  ({ address }) => address === contractAddress
+                )?.name ?? "ETH"}
               </div>
             ) : null
           )}

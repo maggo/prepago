@@ -26,7 +26,9 @@ export default function KeysPage() {
     : undefined
   const tokenAddress = router.query.tokenAddress?.toString()
   const tokenName = tokenAddress
-    ? supportedTokens.find(({ address }) => address === tokenAddress)?.name
+    ? supportedTokens.find(
+        ({ address }) => address.toLowerCase() === tokenAddress.toLowerCase()
+      )?.name
     : undefined
 
   const [hasDownloadedKey, setHasDownloadedKey] = useState(false)

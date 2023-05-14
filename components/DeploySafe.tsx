@@ -61,6 +61,7 @@ export function DeploySafe({
     isLoading,
     error,
     isSuccess,
+    data: actualSafeAddress,
   } = useMutation<string, Error>(
     async () => {
       if (!ownerAdapter || !safeAccountConfig) throw new Error("Not logged in")
@@ -96,11 +97,14 @@ export function DeploySafe({
         </header>
         <Card
           isLoading={safeAddressLoading}
-          address={predictedSafeAddress}
+          address={actualSafeAddress}
           amount={amount}
           currency={currency}
           privateKey={privateKey}
         />
+        <p>
+          Your card is available on-chain at <code>{actualSafeAddress}</code>!
+        </p>
       </>
     )
   }

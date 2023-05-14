@@ -56,7 +56,8 @@ export default function IndexPage() {
   const tokenAddress = form.watch("tokenAddress")
   const tokenName = form.watch("tokenAddress")
     ? supportedTokens.find(
-        ({ address }) => address === form.watch("tokenAddress")
+        ({ address }) =>
+          address.toLowerCase() === form.watch("tokenAddress").toLowerCase()
       )?.name
     : "Tokens"
 

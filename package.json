@@ -29,6 +29,7 @@
     "@web3auth/modal": "^5.2.0",
     "@web3auth/openlogin-adapter": "^5.2.0",
     "@web3auth/web3auth-wagmi-connector": "^3.0.2",
+    "alchemy-sdk": "^2.8.3",
     "class-variance-authority": "^0.4.0",
     "clsx": "^1.2.1",
     "cmdk": "^0.2.0",
