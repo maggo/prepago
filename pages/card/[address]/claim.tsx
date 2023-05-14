@@ -2,9 +2,8 @@ import { useRouter } from "next/router"
 import AccountAbstraction from "@safe-global/account-abstraction-kit-poc"
 import Safe, { EthersAdapter, getSafeContract } from "@safe-global/protocol-kit"
 import { GelatoRelayPack } from "@safe-global/relay-kit"
-import { OperationType } from "@safe-global/safe-core-sdk-types"
 import { useQuery } from "@tanstack/react-query"
-import { Wallet, constants, ethers } from "ethers"
+import { Wallet, ethers } from "ethers"
 import { getAddress, isAddress } from "ethers/lib/utils.js"
 import { Loader2 } from "lucide-react"
 import {
@@ -19,7 +18,9 @@ import { shortenAddress } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { LoginButton } from "@/components/LoginButton"
 
-const relayPack = new GelatoRelayPack()
+const relayPack = new GelatoRelayPack(
+  "sB0a0DD_KOgg70SS57eHEItQnn45VcIysXZMLk4hw34_"
+)
 
 export default function CardPage() {
   const rawAddress = useRouter().query.address?.toString().toLowerCase() ?? ""
@@ -79,15 +80,13 @@ export default function CardPage() {
       newOwnerAddress: userAddress,
     })
 
-    console.log(swapOwnerTx)
     const signedSafeTx = await safe.signTransaction(swapOwnerTx)
-
-    const contract = await getSafeContract({
+    const safeSingletonContract = await getSafeContract({
       ethAdapter,
       safeVersion: await safe.getContractVersion(),
     })
 
-    const encodedTransaction = contract.encode("execTransaction", [
+    const encodedTx = safeSingletonContract.encode("execTransaction", [
       signedSafeTx.data.to,
       signedSafeTx.data.value,
       signedSafeTx.data.data,
@@ -100,31 +99,17 @@ export default function CardPage() {
       signedSafeTx.encodedSignatures(),
     ])
 
-    console.log("encoded", encodedTransaction)
-
-    // const task = await relayPack.relayTransaction({
-    //   target: safeAddress,
-    //   encodedTransaction,
-    //   chainId,
-    //   options: {
-    //     isSponsored: false,
-    //     gasLimit: "150000",
-    //     gasToken: constants.AddressZero,
-    //   },
-    // })
-
-    const task = await relayPack.sendSyncTransaction(
-      safeAddress,
-      encodedTransaction,
+    const response = await relayPack.relayTransaction({
+      target: safeAddress,
+      encodedTransaction: encodedTx,
       chainId,
-      {
-        isSponsored: false,
-        gasLimit: "150000",
-        gasToken: constants.AddressZero,
-      }
-    )
+      options: {
+        gasLimit: "500000",
+        isSponsored: true,
+      },
+    })
 
-    return task.taskId
+    return response.taskId
   })
 
   const { data: taskStatus } = useQuery(
@@ -225,7 +210,7 @@ export default function CardPage() {
             ) : (
               <Button disabled={isLoading} onClick={() => claim()}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Redeem
+                Redeem Card
               </Button>
             )}
           </>
