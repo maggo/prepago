@@ -19,6 +19,18 @@ export const supportedTokens = [
     address: constants.AddressZero,
     name: "ETH",
   },
+  {
+    address: "0x123",
+    name: "APE",
+  },
+  {
+    address: "0x97a4ab97028466FE67F18A6cd67559BAABE391b8",
+    name: "BOB",
+  },
+  {
+    address: "0xcbE9771eD31e761b744D3cB9eF78A1f32DD99211",
+    name: "GHO",
+  },
 ]
 
 interface Fields {
