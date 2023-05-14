@@ -50,7 +50,7 @@ export function Card({
               tokens.
             </p>
             <div className="absolute bottom-2 right-2 h-24 w-24 rounded-sm bg-white p-2">
-              {isLoading ? (
+              {isLoading || !address ? (
                 <Skeleton className="h-full w-full" />
               ) : (
                 <QRCode

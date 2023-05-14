@@ -3,8 +3,8 @@ import AccountAbstraction from "@safe-global/account-abstraction-kit-poc"
 import Safe, { EthersAdapter, getSafeContract } from "@safe-global/protocol-kit"
 import { GelatoRelayPack } from "@safe-global/relay-kit"
 import { useQuery } from "@tanstack/react-query"
-import { Wallet, ethers } from "ethers"
-import { getAddress, isAddress } from "ethers/lib/utils.js"
+import { BigNumber, Wallet, ethers } from "ethers"
+import { formatEther, getAddress, isAddress } from "ethers/lib/utils.js"
 import { Loader2 } from "lucide-react"
 import {
   useAccount,
@@ -53,6 +53,24 @@ export default function CardPage() {
       return safe.isOwner(signer.address)
     },
     { enabled: !!signer?.address }
+  )
+
+  const { data: balances } = useQuery(
+    ["balances", safeAddress],
+    async () => {
+      const res =
+        await fetch(`https://safe-transaction-goerli.safe.global/api/v1/safes/${safeAddress}/balances/?trusted=false&exclude_spam=true
+    `)
+
+      const data = await res.json()
+
+      return data as {
+        tokenAddress: string | null
+        token: string | null
+        balance: string
+      }[]
+    },
+    { enabled: !!safeAddress }
   )
 
   const {
@@ -188,6 +206,15 @@ export default function CardPage() {
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Card #{shortenAddress(safeAddress)}
         </h1>
+        <div>
+          {balances?.map(({ token, tokenAddress, balance }) =>
+            BigNumber.from(balance).gt(0) ? (
+              <div key={tokenAddress} className="text-4xl font-bold">
+                {formatEther(BigNumber.from(balance))} ${token ?? "ETH"}
+              </div>
+            ) : null
+          )}
+        </div>
         <p>Redeem this card to secure your funds.</p>
 
         {isConnected ? (
